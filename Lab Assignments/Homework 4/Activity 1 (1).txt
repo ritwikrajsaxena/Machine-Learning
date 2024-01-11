@@ -1,0 +1,176 @@
+---
+title: "hw4"
+output: html_document
+date: "2023-11-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set a CRAN mirror
+options(repos = c(CRAN = "https://cran.rstudio.com/")) 
+
+# Install packages
+install.packages("tidyverse", dependencies = TRUE, INSTALL_opts = '--no-lock')
+
+# Check installed packages
+inst.packages <- installed.packages()[,1]
+all(is.element(c("tidyverse", "arules", "dplyr" , "caret", "markdown", "reticulate" , "conjuror"), inst.packages))
+```
+Activity 1: (25 pts.) (Decision Trees in R) (Fitting decision trees with R) 
+--
+a) and b)
+--
+```{r}
+# Load necessary library
+library(readr)
+library(dplyr)
+
+# Replace 'YourFolderPath' with the actual path where your file is located
+file_path <- "C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 4/student-mat.csv"
+
+# Read the 'student-mat.csv' file using read_delim
+student_data <- read_delim(file_path, delim = ";", col_names = TRUE, col_types = "ccicccccccccciicc")
+student_data <- student_data %>% mutate_all(as.factor)
+# Display the first few rows of the dataset
+head(student_data)
+```
+--
+c)
+--
+To predict the performance of students in their final math evaluation (G3), several attributes could be considered as potential predictors. The choice of attributes would typically depend on their perceived influence or correlation with the target variable (G3) and their relevance in predicting academic performance. Here are some attributes that could potentially be valuable for predicting G3:
+
+**Previous Grades (G1 and G2)**: The grades in the first and second period might strongly correlate with the final grade (G3). These are likely to be the most influential predictors since academic performance tends to be consistent across different assessment periods.
+
+**Study Time (studytime)**: The amount of time a student spends studying per week might have a positive correlation with their final grade. Generally, more study time could lead to better performance.
+
+**Family Education Level (Medu and Fedu)**: The education levels of the student's mother (Medu) and father (Fedu) might influence the student's academic success. Higher parental education levels might positively impact a student's performance.
+
+**School Support (schoolsup) and Family Support (famsup)**: These attributes indicate whether the student receives extra educational support from the school or family. This support might have an impact on academic achievement.
+
+**Health Status (health)**: Although not directly related to academics, a student's health might affect their ability to perform well in school and hence influence their final grade.
+
+**Going Out (goout) and Alcohol Consumption (Dalc and Walc)**: These attributes might indirectly impact academic performance. Excessive socializing or alcohol consumption might negatively affect a student's ability to study effectively.
+
+**Internet Access (internet) and Romantic Relationships (romantic)**: These factors might have an influence on a student's distractions and time management, subsequently affecting their grades.
+
+Choosing these attributes is based on the assumption that they might have a significant influence on a student's academic performance. However, the selection of predictors can also depend on the actual data analysis, including exploratory data analysis (EDA) and feature importance analysis through decision trees, which is an efficient modelling technique.
+
+## d) and e)
+```{r}
+# Load necessary libraries
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+# Assuming 'student_data' contains the dataset
+
+# Define the predictors as specified
+predictors <- c("G1", "G2", "studytime", "Medu", "Fedu", "schoolsup", "famsup", "health", "goout", "Dalc", "Walc", "internet", "romantic")
+
+# Define the training control
+train_control <- trainControl(method = "cv", number = 5)
+
+# Define the hyperparameter grid for 'maxdepth'
+grid <- expand.grid(maxdepth = c(1, 2, 3, 4))
+set.seed(825)
+
+# Train the model using train() function and perform grid search
+model <- train(G3 ~ ., data = student_data[, c("G3", predictors)],
+               method = "rpart2", trControl = train_control, tuneGrid = grid)
+
+# Print table with accuracies for different hyperparameter values
+print(model$results)
+
+# Plot the accuracy vs. hyperparameter values
+plot(model)
+
+# Build decision tree using the best 'maxdepth' found
+best_maxdepth <- model$bestTune$maxdepth
+final_tree <- rpart(G3 ~ ., data = student_data[, c("G3", predictors)], 
+                     method = "class", control = rpart.control(maxdepth = best_maxdepth))
+
+# Pretty print the tree using fancyRPartPlot
+fancyRpartPlot(final_tree, main = "Decision Tree for G3 Prediction",
+               sub = "Using G1, G2, studytime, Medu, Fedu, schoolsup, famsup, health, goout, Dalc, Walc, internet, romantic",
+               caption = "Customized Decision Tree Plot", palettes = "Set1", type = 2)
+
+
+```
+## f)
+```{r}
+# Load necessary libraries
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+# Assuming 'student_data' contains the dataset
+
+# Define the predictors as specified
+predictors <- c("G1", "G2", "studytime", "Medu", "Fedu", "schoolsup", "famsup", "health", "goout", "Dalc", "Walc", "internet", "romantic")
+
+# Define the training control
+train_control <- trainControl(method = "LOOCV", number = 5)
+
+# Define the hyperparameter grid for 'maxdepth'
+grid <- expand.grid(maxdepth = c(model$bestTune$maxdepth))
+
+# Train the model using train() function and perform grid search
+model <- train(G3 ~ ., data = student_data[, c("G3", predictors)],
+               method = "rpart2", trControl = train_control, tuneGrid = grid)
+
+# Print table with accuracies for different hyperparameter values
+print(model$results)
+
+```
+## g)
+
+```{r}
+# Install and load necessary libraries and packages
+
+
+library(caret)
+library(C50)  # Load the C50 package
+
+# Define the predictors as specified
+predictors <- c("G1", "G2", "studytime", "Medu", "Fedu", "schoolsup", "famsup", "health", "goout", "Dalc", "Walc", "internet", "romantic")
+
+# Define the training control for 5-fold cross-validation
+train_control <- trainControl(method = "LOOCV", number = 5)
+
+# Define the hyperparameter grid for 'trials' and 'minCases'
+grid <- expand.grid(.model = "tree", .trials = c(1:100), .winnow = FALSE)
+C5.0Control(
+subset = TRUE,
+bands = 0,
+winnow = FALSE,
+noGlobalPruning = FALSE,
+CF = 0.25,
+minCases = 2,
+fuzzyThreshold = FALSE,
+sample = 0,
+seed = sample.int(4096, size = 1) - 1L,
+earlyStopping = TRUE,
+label = "outcome"
+)
+
+set.seed(826)
+# Train the model using train() function with C5.0 algorithm and grid search
+model1 <- train(G3 ~ ., data = student_data[, c("G3", predictors)],
+               method = "C5.0", trControl = train_control, tuneGrid = grid)
+
+
+# Print table with accuracies for different hyperparameter values
+print(model$results)
+
+
+final_tree <- rpart(G3 ~ ., data = student_data[, c("G3", predictors)], 
+                     method = "class", control = rpart.control(maxdepth = 3))
+
+# Plot the accuracy vs. hyperparameter values
+plot(model1)
+
+# Pretty print the tree using fancyRpartPlot
+fancyRpartPlot(final_tree, main = "Decision Tree for G3 Prediction",
+               sub = "Using G1, G2, studytime, Medu, Fedu, schoolsup, famsup, health, goout, Dalc, Walc, internet, romantic",
+               caption = "Customized Decision Tree Plot", palettes = "Set1", type = 2)
+```

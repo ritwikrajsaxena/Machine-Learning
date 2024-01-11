@@ -1,0 +1,287 @@
+---
+title: "assignment1"
+output: html_document
+date: "2023-09-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Activity 1
+```
+install.packages("tidyverse", dependencies = TRUE, INSTALL_opts = '--no-lock')
+inst.packages <- installed.packages()[,1]
+all(is.element(c("tidyverse", "arules" , "caret", "markdown", "reticulate"),
+               inst.packages))
+```
+Activity 2
+
+```
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+
+adult
+```
+```
+row_with_missing_data <- adult[which(rowSums(is.na(adult)) > 0), , drop = FALSE]
+print(row_with_missing_data)
+```
+```
+install.packages("readr")
+library(readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+adult1 <- read_csv('adult.data', col_names = FALSE, trim_ws = TRUE, na = c("?"))
+row_with_missing_data <- adult1[which(rowSums(is.na(adult1)) > 0), , drop = TRUE]
+print(row_with_missing_data)
+```
+```
+
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+adult
+```
+```
+# Convert attributes to factors
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+adult$workclass <- as.factor(adult$workclass)
+adult$education <- as.factor(adult$education)
+adult$marital_status <- as.factor(adult$marital_status)
+adult$occupation <- as.factor(adult$occupation)
+adult$relationship <- as.factor(adult$relationship)
+adult$race <- as.factor(adult$race)
+adult$sex <- as.factor(adult$sex)
+adult$native_country <- as.factor(adult$native_country)
+adult$sal_range <- as.factor(adult$sal_range)
+
+# Print the updated data frame
+print(adult)
+```
+
+Activity 3
+
+```
+custom_sd <- function(x) {
+  n <- length(x)
+  
+  if (n <= 1) {
+    # Return NA for vectors with 0 or 1 element
+    return(NA)
+  }
+  
+  mean_x <- mean(x)
+  sum_squared_diff <- sum((x - mean_x)^2)
+  
+  # Calculate the sample standard deviation
+  sample_sd <- sqrt(sum_squared_diff / (n - 1))
+  
+  return(sample_sd)
+}
+
+# Example usage:
+vector <- c(4, 4, 4, 4, 4, 4, 4, 4)
+result <- custom_sd(vector)
+print(result)
+vector <- c(4, 5, 6, 19, 51, 2, 14, 41)
+result <- custom_sd(vector)
+print(result)
+
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country')
+adult <- read_csv('adult.data', col_names = c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country'), na = c('?', 'NA'))
+age_sd <- custom_sd(adult$age)
+
+# Print the result
+cat("Standard Deviation of Ages:", age_sd, "\n")
+```
+```
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+H <- cbind(1, adult$age)
+print (H)
+
+print (t(H) %*% H)
+solve(t(H) %*% H)
+K <- (solve(t(H) %*% H)) %*% (t(H) %*% H)
+print (K)
+```
+
+```
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+response <- adult[, 15]
+print(response)
+# Calculate the counts for each category
+cnts <- table(response)
+print(cnts)
+# Create a bar plot
+barplot(cnts, 
+        main = "Income Distribution",
+        xlab = "Income",
+        ylab = "cnts",
+        col = c("lightblue", "green"),
+        names.arg = c("<=50K", ">50K"),
+        ylim = c(0, max(cnts) + 100000))
+
+# Add counts above the bars
+text(x = barplot(cnts), y = cnts, labels = cnts, pos = 3, cex = 1.2)
+```
+
+```
+install.packages("ggplot2")
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+library (ggplot2)
+response <- adult[, 15]
+cnts <- table(response)
+print(cnts)
+dataframe <- data.frame(Income = names(cnts), Count = as.numeric(cnts))
+ggplot(dataframe, aes(x = Income, y = Count, fill = Income)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Income Distribution",
+    x = "Income Range",
+    y = "Count"
+  ) +
+  scale_fill_manual(values = c("<=50K" = "grey", ">50K" = "blue"))
+adult$workclass[adult$workclass == "Never-worked"] <- "Unemployed"
+adult
+
+```
+
+```
+library(dplyr)
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+adult <- adult %>%
+  mutate(workclass = ifelse(workclass == "Never-worked", "Unemployed", workclass))
+```
+
+Activity 4
+
+```
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'sal_range')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+
+library(dplyr)
+
+selected_rows <- adult %>%  filter(`marital_status` == "Never-married" & age < 45)
+head(selected_rows, 5)
+
+selected_rows <- adult[adult$marital_status == "Never-married" & adult$age < 45, ]
+head(selected_rows, 5)
+
+selected_columns <- adult %>%
+  select(age, workclass, marital_status)
+head(selected_columns, 5)
+
+selected_columns <- adult[, c("age", "workclass", "marital_status")]
+head(selected_columns, 5)
+
+adult <- adult %>%
+  mutate(
+    Age_Category = case_when(
+      age < 45 ~ "Young Adult",
+      age >= 45 & age <= 65 ~ "Middle Age",
+      TRUE ~ "Old Age"
+    )
+  )
+  selected_columns <- adult[, c("Age_Category")]
+head(selected_columns, 5)
+
+adult$Age_Category <- ifelse(adult$age < 45, "Young Adult",ifelse(adult$age >= 45 & adult$age <= 65, "Middle Age", "Old Age"))
+ selected_columns <- adult[, c("Age_Category")]
+head(selected_columns, 5)
+
+library(dplyr)
+age_std_dev <- adult %>% summarize(Standard_Deviation = sd(age))
+age_std_dev
+
+missing_workclass <- adult %>%  filter(is.na(workclass) | workclass == "?")
+missing_workclass
+
+missing_workclass <- adult[adult$workclass == "?" | is.na(adult$workclass), ]
+missing_workclass
+
+```
+Activity 5
+
+```
+library(dplyr)
+library(ggplot2)
+library (readr)
+setwd("C:/Users/Raj/Downloads/Machine Learning and Data Mining/Lab Assignments/Dataset for Homework 1/Adult")
+adult <- read.table("adult.data", header = FALSE, sep = "\t", na = c('?'))
+custom_column_names <- c('age', 'workclass', 'fnlwgt', 'education','education_num','marital_status','occupation','relationship', 'race', 'sex', 'capital_gain', 'capital_loss','hours_per_week', 'native_country', 'income')
+adult <- read_csv('adult.data', col_names = custom_column_names)
+# Assuming 'adult' is your dataset
+# Add the 'Age_Category' column based on age ranges
+adult <- adult %>%
+  mutate(
+    Age_Category = case_when(
+      age < 45 ~ "Young Adult",
+      age >= 45 & age <= 65 ~ "Middle Age",
+      age > 65 ~ "Old Age"
+    )
+  )
+
+
+
+percentage_above_50000 <- adult %>%
+  group_by(Age_Category) %>%
+  summarise(Percentage_Above_50000 = sum(income == ">50K") / n() * 100) %>%
+  ungroup()
+
+
+percentage_above_50000
+
+percentage_below_50000 <- adult %>%
+  group_by(Age_Category) %>%
+  summarise(Percentage_Below_50000 = sum(income == "<=50K") / n() * 100) %>%
+  ungroup()
+
+
+percentage_below_50000
+
+
+AGE_CATEGORY <- c(rep("Young Adult", 2), rep("Middle Age", 2), rep("Old Age", 2))
+Income1 <- c( "percentage_above_50000", "percentage_below_50000", "percentage_above_50000", "percentage_below_50000", "percentage_above_50000","percentage_below_50000")
+Percentage1 <- c(18.9, 81.1, 37.1, 62.9, 20.1, 79.9)
+data <- data.frame (AGE_CATEGORY, Percentage1, Income1)
+data
+two <- ggplot(data) +
+  geom_bar(aes(x = AGE_CATEGORY, y = Percentage1, fill = Income1), position = "stack", stat = "identity") +
+  scale_fill_manual(values = c("percentage_below_50000" = "blue", "percentage_above_50000" = "red"))
+plot + scale_x_discrete(limits = rev(levels(data$Age_Category)), labels = rev(levels(data$Age_Category)))
+gridExtra::grid.arrange(two, nrow = 1)
+
+```
+b) Question: What conclusions do you draw about the dataset from the figure above?
+```
+```
+Answer: The conclusions that I draw about the dataset from the figure given in the assignment PDF is that the percentage of people earning an income above fifty thousand increases with increase in age. Therefore, income improves with age. 
