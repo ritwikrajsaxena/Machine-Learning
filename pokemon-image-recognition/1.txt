@@ -1,0 +1,20 @@
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+
+
+X = []
+X = images
+y = []
+y = labels
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+random_state=42, test_size=0.2)
+X_val, X_test, y_val, y_test = train_test_split(X_test, y_test,
+random_state=3, test_size=0.5)
+print("X_train: "+str(X_train.shape))
+print("X_test: "+str(X_test.shape))
+print("X_val: "+str(X_val.shape))
+print("y_train: "+str(y_train.shape))
+print("y_test: "+str(y_test.shape))
+print("y_val: "+str(y_val.shape))

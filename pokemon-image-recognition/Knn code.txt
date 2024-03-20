@@ -1,0 +1,128 @@
+Sensogram 1
+Volkinview 1
+Empatica 2
+Moorebot 2 
+Omron 1
+Bodystat 1
+AliveCor 1
+EMG 2print("Hi")
+
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+import cv2 as cv
+import os
+import numpy as np
+
+from pathlib import Path
+from skimage.io import imread
+from skimage.transform import resize
+
+from PIL import Image
+
+from keras.preprocessing import image
+import matplotlib.pyplot as plt
+from pathlib import Path
+from sklearn.model_selection import GridSearchCV, train_test_split
+from skimage.io import imread
+print("Files imported successfully")
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore", category=UserWarning, module="PIL")
+pd.set_option('display.max_columns', 30*30 + 1)
+
+
+main_directory = "C:/Users/Raj/Desktop/pokemon-image-recognition/Small Test Set"
+def load_image_files(main_directory, dimension=(64, 64)):
+    image_dir = Path(main_directory)
+    folders = [directory for directory in image_dir.iterdir() if directory.is_dir()]
+   
+    global images_list
+    images_list = []
+    # Get a list of subdirectories (each subdirectory represents an animal category)
+    pokemon_categories = os.listdir(main_directory)
+
+    # Initialize empty lists for features (X) and labels (y)
+    X = []
+    labels = []
+
+    # Iterate through each animal category
+    for category in pokemon_categories:
+        category_path = os.path.join(main_directory, category)
+
+        # Check if it's a directory
+        if os.path.isdir(category_path):
+            # List all image files in the category directory
+            image_files = [f for f in os.listdir(category_path) if f.endswith(".jpg")]
+
+            
+            for image_file in image_files:
+                image_path = os.path.join(category_path, image_file)
+
+    for i, folder in enumerate(folders):
+        # Get the label (pokemon name) for this folder
+        label = folder.name
+        
+        # Load each image in the folder
+        for file_path in folder.iterdir():
+            # Read the image
+            img = cv.imread(image_path)
+            
+            # Resize the image to the specified dimension
+            
+            img = resize(img, dimension, anti_aliasing=True)
+            
+            # Append the image and its label to the lists
+                        
+            images_list = np.append(images_list, img)
+            labels = np.append(labels, i)  # Use index as label
+            
+            # Convert lists to numpy arrays
+            images = np.array(images_list)
+            labels = np.array(labels)
+    return images, labels
+    
+
+
+
+
+images, labels = load_image_files(main_directory)
+print("Images shape:", images.shape)
+print("Labels shape:", labels.shape)
+
+
+#pokemon_labels = []
+#pokemon_labels = np.unique(labels)
+
+# Initialize empty arrays for labels (y)
+#label_arrays = []
+
+# Iterate through the list of labels
+#for label in pokemon_labels:
+    # Generate an array of zeros and ones based on the label
+    #label_array = np.zeros(len(pokemon_labels))
+    #label_array[np.where(np.array(pokemon_labels) == label)] = 1
+    #label_arrays.append(label_array)
+
+#y = np.concatenate(label_arrays, axis=0)
+#print (y)
+
+X = []
+X = images
+y = []
+y = labels
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+random_state=42, test_size=0.2)
+X_val, X_test, y_val, y_test = train_test_split(X_test, y_test,
+random_state=3, test_size=0.5)
+print("X_train: "+str(X_train.shape))
+print("X_test: "+str(X_test.shape))
+print("X_val: "+str(X_val.shape))
+print("y_train: "+str(y_train.shape))
+print("y_test: "+str(y_test.shape))
+print("y_val: "+str(y_val.shape))
